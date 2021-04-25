@@ -1,17 +1,12 @@
+
 <template>
 <v-app>
   <v-data-table
     :headers="Headers"
     :items="doctors"
     :items-per-page="10"
-    align="center">
-  <template v-slot:[`item.actions`]="{ item }">
-            <v-icon small class="mr-2" @click="editDoctor(item.id)">mdi-pencil</v-icon>
-            <v-icon small @click="deleteDoctor(item.id)">mdi-delete</v-icon>
-            <v-icon small link-to="/patients">mdi-calendar</v-icon>
-          </template>
-        
-  </v-data-table>
+    align="center"
+  ></v-data-table>
   <v-row justify="center">
     <v-btn
       color="primary"
@@ -20,7 +15,7 @@
     >
       add Doctor
     </v-btn>
-    
+
 
     <v-dialog
       v-model="adddialog"
@@ -34,42 +29,43 @@
         </v-card-title>
 
         <v-card-text>
-          fill the doctor_form to add a doctor
+          fill the form to add a doctor
         </v-card-text>
       <form class="form" v-on:submit.prevent="createDoctor">
+        
         <v-text-field
 
                   id="name"
                   label="name"
-                  v-model="doctor_form.name"
+                  v-model="form.name"
                   required
                 >
         </v-text-field>
         <v-text-field
                   id="years_of_experience"
                   label="years_of_experience"
-                  v-model="doctor_form.years_of_experience"
+                  v-model="form.years_of_experience"
                   required
                 >
         </v-text-field>
          <v-text-field
                   id="type_of_doctor"                  
                   label="type_of_doctor"
-                  v-model="doctor_form.type_of_doctor"
+                  v-model="form.type_of_doctor"
                   required
                 >
         </v-text-field>
          <v-text-field
                   id="consultation_fee"
                   label="consultation_fee"
-                  v-model="doctor_form.consultation_fee"
+                  v-model="form.consultation_fee"
                   required
                 >
         </v-text-field>
          <v-text-field
                   id="mail_id"
                   label="mail_id"
-                  v-model="doctor_form.mail_id"
+                  v-model="form.mail_id"
                   required
 
                 >
@@ -77,7 +73,7 @@
          <v-text-field
                   id="phone"
                   label="phone"
-                  v-model="doctor_form.phone"
+                  v-model="form.phone"
                   required
                 >
         </v-text-field>
@@ -91,25 +87,46 @@
             color="green darken-1"
             text
             
-            @click="add_edit_Doctor()"
+            @click="createDoctor()"
           >
             submit
           </v-btn>
           <v-btn
           @click="adddialog = false;
-          id ='add'
+         
             ">
             close
           </v-btn>
 
           
         </v-card-actions>
+        <v-btn
         
+        
+
+        >
+        </v-btn>
       </form>
       </v-card>
     </v-dialog>
-   
+
+
   </v-row>
+  <template v-slot:actions="{ item }">
+      <v-icon
+        small
+        class="mr-2"
+        @click="editItem(item)"
+      >
+        mdi-pencil
+      </v-icon>
+      <v-icon
+        small
+        @click="deleteItem(item)"
+      >
+        mdi-delete
+      </v-icon>
+    </template>=
 </v-app>
 </template>
 <script>
@@ -118,11 +135,10 @@ import axios from 'axios'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 
-
   export default {
     data :() => ({
 
-        doctor_form :{
+        form :{
           name:'',
           years_of_experience:'',
           type_of_doctor:'', 
@@ -134,8 +150,9 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
         }
       ,
-     
-      
+      updateDoctor :{
+
+      },
       adddialog: false,
  
 
@@ -147,13 +164,12 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
             {text:'consultation fee', value:"consultation_fee"},
             {text:'email_id', value:"mail_id"},
             {text:'phone numbers', value:"phone"},
-            {text:'actions',value:"actions"},
+            { text: 'Actions', value: 'actions', sortable: false },
             
 
             
         ],
         doctors:[] ,
-        
         
         
 
@@ -165,22 +181,6 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
     methods:{
         initialize()
         {this.loadDoctors()},
-        createDoctor(){
-          this.doctor_form={
-          name:'',
-          years_of_experience:'',
-          type_of_doctor:'', 
-          consultation_fee:'',
-          mail_id:'',
-          phone:'',
-          hospital_id:'55555',
-
-
-        }
-          this.adddialog= true
-          
-        },
-        
         
         
 
@@ -201,11 +201,8 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
             
 
         },
-        add_edit_Doctor(){
-          if (this.doctor_form.id==null){
-
-          
-          axios.post('http://127.0.0.1:5000/doctors', this.doctor_form)
+        createDoctor(){
+          axios.post('http://127.0.0.1:5000/doctors', this.form)
           .then((res)=>{
             console.log(res);
             if (res.status==200){
@@ -216,32 +213,13 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
           .catch((err)=>{
             console.log(err);
           })
-          .finally(()=>{})}
-          else{
-            axios.put(`http://127.0.0.1:5000/doctors/${this.doctor_form.id}`,this.doctor_form)
-          }
-
+          .finally(()=>{})
         },
-
-        editDoctor(id){
-          axios.get(`http://localhost:5000/doctors/${id}`)
-          .then((res)=>{
-             console.log(res.data.doctor);
-             this.doctor_form=res.data.doctor
-             this.adddialog = true
-          }
-)
-          .catch(err => console.log(err))
-         
-          
-        },
-        deleteDoctor(id){
-          axios.delete(`http://localhost:5000/doctors/${id}`)
-          this.loadDoctors()
-        }
-      
         
-    }}
+        
+          
+        }
+    }
   
 </script>
 

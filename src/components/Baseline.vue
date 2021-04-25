@@ -5,10 +5,11 @@
       app
       clipped
       dense
+      temporary
     ><v-list dense>
-<v-list-item link to="/doctor">
+<v-list-item link to="/Doctor">
 <v-list-item-content>
-<v-list-item-title>doctor</v-list-item-title>
+<v-list-item-title>Doctor</v-list-item-title>
 </v-list-item-content>
 </v-list-item>
 </v-list>
