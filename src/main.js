@@ -3,7 +3,10 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 import vuetify from './plugins/vuetify';
 import routes from './router/route'
+
 import VueResource from 'vue-resource'
+
+
 Vue.config.productionTip = false
 Vue.use(VueRouter)
 Vue.use(VueResource)
