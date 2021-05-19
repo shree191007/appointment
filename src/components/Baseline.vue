@@ -20,6 +20,13 @@
 </v-list-item-content>
 </v-list-item>
 </v-list>
+<v-list dense>
+<v-list-item link to="/calendar">
+<v-list-item-content>
+<v-list-item-title>calendar</v-list-item-title>
+</v-list-item-content>
+</v-list-item>
+</v-list>
       <!--  -->
     </v-navigation-drawer>
 

@@ -1,122 +1,195 @@
-
-    <template>
-  <div>
-    <v-sheet
-      tile
-      height="54"
-      class="d-flex"
+<template>
+<v-app>
+  <v-data-table
+    :headers="Headers"
+    :items="patients"
+    align="center">
+  <template v-slot:[`item.actions`]="{ item }">
+            <v-icon small class="mr-2" @click="editpatient(item.id)">mdi-pencil</v-icon>
+            <v-icon small @click="deletepatient(item.id)">mdi-delete</v-icon>
+            <v-icon small link-to="/patients">mdi-calendar</v-icon>
+          </template>
+  </v-data-table>
+  <v-row justify="center">
+    <v-btn
+      color="primary"
+      dark
+      @click.stop="adddialog = true"
     >
-      <v-btn
-        icon
-        class="ma-2"
-        @click="$refs.calendar.prev()"
-      >
-        <v-icon>mdi-chevron-left</v-icon>
-      </v-btn>
-      <v-select
-        v-model="type"
-        :items="types"
-        dense
-        outlined
-        hide-details
-        class="ma-2"
-        label="type"
-      ></v-select>
-      <v-select
-        v-model="mode"
-        :items="modes"
-        dense
-        outlined
-        hide-details
-        label="event-overlap-mode"
-        class="ma-2"
-      ></v-select>
-      <v-select
-        v-model="weekday"
-        :items="weekdays"
-        dense
-        outlined
-        hide-details
-        label="weekdays"
-        class="ma-2"
-      ></v-select>
-      <v-spacer></v-spacer>
-      <v-btn
-        icon
-        class="ma-2"
-        @click="$refs.calendar.next()"
-      >
-        <v-icon>mdi-chevron-right</v-icon>
-      </v-btn>
-    </v-sheet>
-    <v-sheet height="600">
-      <v-calendar
-        ref="calendar"
-        v-model="value"
-        :weekdays="weekday"
-        :type="type"
-        :events="events"
-        :event-overlap-mode="mode"
-        :event-overlap-threshold="30"
-        :event-color="getEventColor"
-        @change="getEvents"
-      ></v-calendar>
-    </v-sheet>
-  </div>
+      add patient
+    </v-btn>
+    <v-dialog
+      v-model="adddialog"
+      id="adddialog"
+      name="adddialog"
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Add patient
+        </v-card-title>
+        <v-card-text>
+          fill the patient_form to add a patient
+        </v-card-text>
+      <form class="form" v-on:submit.prevent="createpatient">
+        <v-text-field
+
+                  id="name"
+                  label="name"
+                  v-model="patient_form.name"
+                  required
+                >
+        </v-text-field>
+        <v-text-field
+                  id="age"
+                  label="age"
+                  v-model="patient_form.age"
+                  required
+                >
+        </v-text-field>
+         <v-text-field
+                  id="phone"                  
+                  label="phone"
+                  v-model="patient_form.phone"
+                  required
+                >
+        </v-text-field>
+         <v-text-field
+                  id="diagnosis"
+                  label="diagnosis"
+                  v-model="patient_form.diagnosis"
+                  required
+                >
+        </v-text-field>
+         <v-text-field
+                  id="mail_id"
+                  label="mail_id"
+                  v-model="patient_form.mail_id"
+                  required
+                >
+        </v-text-field>
+         <v-text-field
+                  id="phone"
+                  label="phone"
+                  v-model="patient_form.phone"
+                  required
+                >
+        </v-text-field>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="add_edit_patient()"
+          >
+            submit
+          </v-btn>
+          <v-btn
+          @click="adddialog = false;
+          id ='add'
+            ">
+            close
+          </v-btn>
+        </v-card-actions>
+      </form>
+      </v-card>
+    </v-dialog>
+   
+  </v-row>
+</v-app>
 </template>
-
 <script>
+import patientservices from "@/services/patientService" 
+import axios from 'axios'
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+Host="127.0.0.1"
+Port="5000"
+
+
   export default {
-    data: () => ({
-      type: 'month',
-      types: ['month', 'week', 'day', '4day'],
-      mode: 'stack',
-      modes: ['stack', 'column'],
-      weekday: [0, 1, 2, 3, 4, 5, 6],
-      weekdays: [
-        { text: 'Sun - Sat', value: [0, 1, 2, 3, 4, 5, 6] },
-        { text: 'Mon - Sun', value: [1, 2, 3, 4, 5, 6, 0] },
-        { text: 'Mon - Fri', value: [1, 2, 3, 4, 5] },
-        { text: 'Mon, Wed, Fri', value: [1, 3, 5] },
-      ],
-      value: '',
-      events: [],
-      colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
-      names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
-    }),
-    methods: {
-      getEvents ({ start, end }) {
-        const events = []
+    data :() => ({
 
-        const min = new Date(`${start.date}T00:00:00`)
-        const max = new Date(`${end.date}T23:59:59`)
-        const days = (max.getTime() - min.getTime()) / 86400000
-        const eventCount = this.rnd(days, days + 20)
-
-        for (let i = 0; i < eventCount; i++) {
-          const allDay = this.rnd(0, 3) === 0
-          const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-          const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-          const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-          const second = new Date(first.getTime() + secondTimestamp)
-
-          events.push({
-            name: this.names[this.rnd(0, this.names.length - 1)],
-            start: first,
-            end: second,
-            color: this.colors[this.rnd(0, this.colors.length - 1)],
-            timed: !allDay,
-          })
+        patient_form :{
+          name:'',
+          age:'',
+          diagnosis:'',
+          mail_id:'',
+          phone:'',
         }
-
-        this.events = events
-      },
-      getEventColor (event) {
-        return event.color
-      },
-      rnd (a, b) {
-        return Math.floor((b - a + 1) * Math.random()) + a
-      },
+      ,
+      adddialog: false,
+        Headers:[
+            {text:'patient id', value:"id"},
+            {text:'patient name', value:"name"},
+            {text:'phone', value:"phone"},
+            {text:'age', value:"age"},
+            {text:'diagnosis', value:"diagnosis"},
+            {text:'email_id', value:"mail_id"},
+            {text:'actions',value:"actions"},
+        ],
+        patients:[] ,
+    }),
+    created(){
+        console.log('inside created')
+        this.initialize()
     },
-  }
+    methods:{
+        initialize()
+        {this.loadpatients()},
+        createpatient(){
+          this.patient_form={
+          name:'',
+          age:'',
+          diagnosis:'',
+          mail_id:'',
+          phone:'',
+          hospital_id:'55555',
+        }
+          this.adddialog= true
+        },
+        loadpatients(){
+            this.patients=[]
+            patientservices.getAllpatients()
+            patientservices.getAllpatients().then(item=>{
+                    item.patient.forEach(
+                        patient=>{this.patients.push(patient)}
+                    )
+            });
+        },
+        add_edit_patient(){
+          if (this.patient_form.id==null){
+          axios.post('http://localhost:5000/patients', this.patient_form)
+          .then((res)=>{
+            console.log(res);
+            if (res.status==200){
+              this.adddialog = false
+              this.loadpatients()
+            }
+          })
+          .catch((err)=>{
+            console.log(err);
+          })
+          .finally(()=>{})}
+          else{
+            axios.put(`http://localhost:5000/patients/${this.patient_form.id}`,this.patient_form)
+            this.loadpatients()
+            this.adddialog =false
+          }
+        },
+        editpatient(id){
+          axios.get(`http://localhost:5000/patients/${id}`)
+          .then((res)=>{
+             console.log(res.data.patient);
+             this.patient_form=res.data.patient
+             this.adddialog = true
+          }
+)
+          .catch(err => console.log(err))
+        },
+        deletepatient(id){
+          axios.delete(`http://localhost:5000/patients/${id}`)
+          this.loadpatients()
+        }
+    }}
 </script>
+
+  

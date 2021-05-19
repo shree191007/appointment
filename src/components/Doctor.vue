@@ -116,6 +116,8 @@
 import doctorServices from "@/services/doctorService" 
 import axios from 'axios'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+const Host="127.0.0.1"
+const Port="5000"
 
 
 
@@ -205,7 +207,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
           if (this.doctor_form.id==null){
 
           
-          axios.post('http://127.0.0.1:5000/doctors', this.doctor_form)
+          axios.post(`'http://${Host}:${Port}/doctors'`, this.doctor_form)
           .then((res)=>{
             console.log(res);
             if (res.status==200){
@@ -218,13 +220,13 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
           })
           .finally(()=>{})}
           else{
-            axios.put(`http://127.0.0.1:5000/doctors/${this.doctor_form.id}`,this.doctor_form)
+            axios.put(`http://${Host}:${Port}/doctors/${this.doctor_form.id}`,this.doctor_form)
           }
 
         },
 
         editDoctor(id){
-          axios.get(`http://localhost:5000/doctors/${id}`)
+          axios.get(`http://${Host}:${Port}/doctors/${id}`)
           .then((res)=>{
              console.log(res.data.doctor);
              this.doctor_form=res.data.doctor
@@ -236,7 +238,7 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
           
         },
         deleteDoctor(id){
-          axios.delete(`http://localhost:5000/doctors/${id}`)
+          axios.delete(`http://${Host}:${Port}/doctors/${id}`)
           this.loadDoctors()
         }
       
