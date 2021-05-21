@@ -101,8 +101,7 @@
 import patientservices from "@/services/patientService" 
 import axios from 'axios'
 axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-Host="127.0.0.1"
-Port="5000"
+
 
 
   export default {

@@ -52,8 +52,10 @@
               <v-text-field v-model="end" type="time" label="end time (required)"></v-text-field>
               <v-text-field v-model="color" type="color" label="color (click to open color menu)"></v-text-field>
               <v-btn type="submit" color="primary" class="mr-4" @click.stop="dialog = false">
+
                 create event
               </v-btn>
+              <v-btn @click="dialog=false">close</v-btn>
             </v-form>
           </v-container>
         </v-card>
@@ -202,7 +204,7 @@ export default {
   },
   methods: {
     async getEvents () {
-      let snapshot = axios.get("http://localhost:5000/appointments")
+      let snapshot = axios.get("http://192.168.1.5:8090/appointments")
       const events = []
       snapshot.forEach(doc => {
         let appData = doc.data()

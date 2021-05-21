@@ -11,19 +11,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
 func GetAllDoctors(w http.ResponseWriter, r *http.Request) {
 	var doctors []entity.Doctor
 	database.Connector.Find(&doctors)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	enableCors(&w)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(doctors)
 }
 
 func GetDoctorByID(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	key := vars["id"]
 
@@ -38,14 +39,13 @@ func GetDoctorByID(w http.ResponseWriter, r *http.Request) {
 
 //CreatePerson creates person
 func CreateDoctor(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	requestBody, _ := ioutil.ReadAll(r.Body)
 	var person entity.Doctor
 	json.Unmarshal(requestBody, &person)
 
 	database.Connector.Create(person)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(person)
@@ -53,13 +53,11 @@ func CreateDoctor(w http.ResponseWriter, r *http.Request) {
 
 //UpdatePersonByID updates person with respective ID
 func UpdateDoctorByID(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	requestBody, _ := ioutil.ReadAll(r.Body)
 	var person entity.Doctor
 	json.Unmarshal(requestBody, &person)
-	database.Connector.Save(&person)
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(person)
@@ -69,9 +67,8 @@ func UpdateDoctorByID(w http.ResponseWriter, r *http.Request) {
 func DeleteDoctorByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["id"]
-
+	enableCors(&w)
 	var person entity.Doctor
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	id, _ := strconv.ParseInt(key, 10, 64)
